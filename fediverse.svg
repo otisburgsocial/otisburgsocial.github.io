@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="sans-serif">
+
+  <!-- Connection lines (drawn first so circles sit on top) -->
+  <line x1="450" y1="300" x2="660" y2="300" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="450" y1="300" x2="555" y2="118" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="450" y1="300" x2="345" y2="118" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="450" y1="300" x2="240" y2="300" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="450" y1="300" x2="345" y2="482" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="450" y1="300" x2="555" y2="482" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+  <!-- Remote servers -->
+  <circle cx="660" cy="300" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="660" y="296" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="660" y="313" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <circle cx="555" cy="118" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="555" y="114" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="555" y="131" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <circle cx="345" cy="118" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="345" y="114" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="345" y="131" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <circle cx="240" cy="300" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="240" y="296" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="240" y="313" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <circle cx="345" cy="482" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="345" y="478" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="345" y="495" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <circle cx="555" cy="482" r="42" fill="#1e1e2e" stroke="#666" stroke-width="2"/>
+  <text x="555" y="478" text-anchor="middle" fill="#aaa" font-size="13">remote</text>
+  <text x="555" y="495" text-anchor="middle" fill="#aaa" font-size="13">server</text>
+
+  <!-- Home server (prominent, centered) -->
+  <circle cx="450" cy="300" r="75" fill="#1e1e2e" stroke="#cc3333" stroke-width="3"/>
+  <text x="450" y="283" text-anchor="middle" fill="white" font-size="15" font-weight="bold">home</text>
+  <text x="450" y="302" text-anchor="middle" fill="white" font-size="15" font-weight="bold">server</text>
+
+  <!-- User dot + label -->
+  <circle cx="450" cy="325" r="8" fill="#cc3333"/>
+  <text x="450" y="350" text-anchor="middle" fill="#cc3333" font-size="12">you</text>
+
+</svg>

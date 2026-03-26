@@ -7,7 +7,7 @@
 			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 		/>
 
-		<title>reveal.js</title>
+		<title>Webfinger Reverse Discovery</title>
 
 		<link rel="stylesheet" href="dist/reset.css" />
 		<link rel="stylesheet" href="dist/reveal.css" />
@@ -19,8 +19,116 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<h1>Webfinger Reverse Discovery</h1>
+					<p>Tom Brown</p>
+				</section>
+				<section>
+					<blockquote style="margin-bottom: 0.1em;">
+						"Community-owned independent social media sites"
+						<br /><br />
+						<small>— Darius Kazemi, on the fediverse</small>
+					</blockquote>
+					<img src="fediverse.svg" style="max-height: 50vh; width: auto;" />
+				</section>
+				<section>
+					<img src="02_webfinger_client.svg" style="max-height: 80vh; width: auto;" />
+				</section>
+				<section>
+					<pre><code class="language-ruby" style="font-size: 0.55em; max-height: 80vh;" data-line-numbers="3|9">3.3.10 :001 > require 'webfinger'
+ => true
+3.3.10 :002 > WebFinger.discover! 'acct:gargron@mastodon.social'
+ =>
+{"subject"=>"acct:Gargron@mastodon.social",
+ "aliases"=>["https://mastodon.social/@Gargron", "https://mastodon.social/users/Gargron"],
+ "links"=>
+  [{"rel"=>"http://webfinger.net/rel/profile-page", "type"=>"text/html", "href"=>"https://mastodon.social/@Gargron"},
+   {"rel"=>"self", "type"=>"application/activity+json", "href"=>"https://mastodon.social/users/Gargron"},
+   {"rel"=>"http://ostatus.org/schema/1.0/subscribe", "template"=>"https://mastodon.social/authorize_interaction?uri={uri}"},
+   {"rel"=>"https://w3id.org/fep/3b86/Create", "template"=>"https://mastodon.social/share?text={content}"},
+   {"rel"=>"https://w3id.org/fep/3b86/Object", "template"=>"https://mastodon.social/authorize_interaction?uri={object}"},
+   {"rel"=>"http://webfinger.net/rel/avatar",
+    "type"=>"image/png",
+    "href"=>"https://files.mastodon.social/accounts/avatars/000/000/001/original/a0a49d80c3de5f75.png"}]}</code></pre>
+				</section>
+				<section>
+					<h2>Canonical Identifier</h2>
+					<table style="margin: 0.6em auto; border-collapse: separate; border-spacing: 0 0.6em;">
+						<tr>
+							<td style="text-align: right; color: #aaa; padding-right: 1em;">canonical</td>
+							<td><code>bob@blog.com</code></td>
+						</tr>
+						<tr>
+							<td style="text-align: right; color: #aaa; padding-right: 1em;">as seen by<br/>dumb server</td>
+							<td><code style="color: #aaa;">bob@remote.com</code></td>
+						</tr>
+					</table>
+					<div style="display: flex; justify-content: center; gap: 2em; margin-top: 0.6em;">
+						<p style="font-size: 0.6em; color: #888; margin: 0; max-width: 40%;">
+							<strong style="color: #cc3333;">Problem 1 of 2</strong><br/>
+							A server only doing forward discovery
+							will not use the canonical identifier.
+						</p>
+						<p style="font-size: 0.6em; color: #888; margin: 0; max-width: 40%;">
+							<strong style="color: #cc3333;">Problem 2 of 2</strong><br/>
+							The server hosting the actor document
+							needs to be aware of the canonical identifier.
+						</p>
+					</div>
+				</section>
+				<section>
+					<h2>Reverse Discovery</h2>
+					<ul>
+						<li><a href="https://www.w3.org/community/reports/socialcg/CG-FINAL-apwf-20240608/#reverse-discovery">ActivityPub and WebFinger (2024)</a></li>
+						<li><a href="https://docs.joinmastodon.org/spec/webfinger/#mastodons-requirements-for-webfinger">Mastodon's requirements for WebFinger</a></li>
+					</ul>
+				</section>
+				<section>
+					<img src="01_webfinger_client.svg" style="max-height: 80vh; width: auto;" />
+				</section>
+				<section>
+					<h3 style="font-size: 0.7em; margin-bottom: 0.3em;"><code>@republik_magazin@republik.ch</code></h3>
+					<pre><code class="language-ruby" style="font-size: 0.45em; max-height: 80vh; line-height: 1.8;" data-line-numbers="1|5|6|7|9|11|17|19|23|24|25|27">3.4.4 :010 > result = WebFinger.discover! 'acct:republik_magazin@republik.ch'
+ =>
+{"subject" => "acct:republik_magazin@republik.ch",
+...
+3.4.4 :011 > link = result['links'].find {|l| l['rel'] == 'self'}
+ => {"rel" => "self", "type" => "application/activity+json", "href" => "https://republik.social/users/republik_magazin"}
+3.4.4 :012 > actor_url = URI(link['href'])
+ => #&lt;URI::HTTPS https://republik.social/users/republik_magazin&gt;
+3.4.4 :013 > request = Net::HTTP::Get.new(actor_url)
+ => #&lt;Net::HTTP::Get GET&gt;
+3.4.4 :014 > request['Accept'] = 'application/json'
+ => "application/json"
+3.4.4 :015 > http = Net::HTTP.new(actor_url.host, actor_url.port)
+ => #&lt;Net::HTTP republik.social:443 open=false&gt;
+3.4.4 :016 > http.use_ssl=true
+ => true
+3.4.4 :017 > response = http.request(request)
+ => #&lt;Net::HTTPOK 200 OK readbody=true&gt;
+3.4.4 :018 > actor = JSON.parse(response.body)
+ =>
+{"@context" =>
+...
+3.4.4 :019 > ap_server_domain = URI.parse(actor['id']).hostname
+ => "republik.social"
+3.4.4 :020 > reverse_result = WebFinger.discover! "acct:#{actor['preferredUsername']}@#{ap_server_domain}"
+ =>
+{"subject" => "acct:republik_magazin@republik.ch",
+...</code></pre>
+				</section>
+				<section>
+					<h2>Custom domain with Mastodon</h2>
+					<ul>
+						<li><a href="https://docs.joinmastodon.org/admin/config/#federation">Federation and display</a></li>
+					</ul>
+					<blockquote style="font-size: 0.55em; margin-top: 0.5em;">
+						To install Mastodon on mastodon.example.com in such a way it can serve @alice@example.com, set <span style="color: #cc3333;">LOCAL_DOMAIN</span> to example.com and <span style="color: #cc3333;">WEB_DOMAIN</span> to mastodon.example.com.<br /><br />This also requires additional configuration on the server hosting example.com to redirect requests from<br /> https://example.com/.well-known/webfinger to<br /> https://mastodon.example.com/.well-known/webfinger
+					</blockquote>
+				</section>
+				<section>
+					<img src="cj.png" style="max-height: 80vh; width: auto;" />
+				</section>
 			</div>
 		</div>
 
