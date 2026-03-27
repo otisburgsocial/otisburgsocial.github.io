@@ -22,6 +22,8 @@
 				<section>
 					<h1>Webfinger Reverse Discovery</h1>
 					<p>Tom Brown</p>
+					<p>@tom@herestomwiththeweather.com</p>
+					<p style="font-size: 0.8em;">Slides at <a href="https://otisburgsocial.github.io">https://otisburgsocial.github.io</a></p>
 				</section>
 				<section>
 					<blockquote style="margin-bottom: 0.1em;">
@@ -30,6 +32,14 @@
 						<small>— Darius Kazemi, on the fediverse</small>
 					</blockquote>
 					<img src="fediverse.svg" style="max-height: 50vh; width: auto;" />
+				</section>
+				<section>
+					<h2>WebFinger</h2>
+					<p>in the user interface: <code style="color: #cc3333;">@bob@example.com</code></p>
+					<p>on the wire protocol: <code style="color: #cc3333;">acct:bob@example.com</code></p>
+					<ul>
+						<li><a href="https://datatracker.ietf.org/doc/html/rfc7033">RFC 7033</a></li>
+					</ul>
 				</section>
 				<section>
 					<img src="02_webfinger_client.svg" style="max-height: 80vh; width: auto;" />
@@ -127,7 +137,42 @@
 					</blockquote>
 				</section>
 				<section>
+					<h2>Can I own my own identifier without root access?</h2>
+				</section>
+				<section>
+					<h2>Proof of Concept: otisburg.social</h2>
+					<ul>
+						<li><a href="https://github.com/herestomwiththeweather/irwin">Irwin Indieauth and Activitypub Server</a></li>
+					</ul>
+				</section>
+				<section>
+					<p><a href="https://github.com/herestomwiththeweather/irwin/blob/main/app/serializers/webfinger_serializer.rb">webfinger_serializer.rb</a></p>
+					<pre><code class="language-ruby" style="font-size: 0.55em; max-height: 80vh; line-height: 1.4;">class WebfingerSerializer &lt; ActiveModel::Serializer
+  attributes :subject, :links
+
+  def subject
+    object.to_webfinger_s
+  end
+
+  def links
+    [
+      {
+        "rel": "self",
+        "type": "application/activity+json",
+        "href": "#{object.actor_url}"
+      }
+    ]
+  end
+end</code></pre>
+				</section>
+				<section>
 					<img src="cj.png" style="max-height: 80vh; width: auto;" />
+				</section>
+				<section>
+					<h1>Webfinger Reverse Discovery</h1>
+					<p>Tom Brown</p>
+					<p>@tom@herestomwiththeweather.com</p>
+					<p style="font-size: 0.8em;">Slides at <a href="https://otisburgsocial.github.io">https://otisburgsocial.github.io</a></p>
 				</section>
 			</div>
 		</div>
