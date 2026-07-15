@@ -7,7 +7,7 @@
 			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 		/>
 
-		<title>Webfinger Reverse Discovery</title>
+		<title>Building a Fediverse Presence</title>
 
 		<link rel="stylesheet" href="dist/reset.css" />
 		<link rel="stylesheet" href="dist/reveal.css" />
@@ -20,7 +20,7 @@
 		<div class="reveal">
 			<div class="slides">
 				<section>
-					<h1>Webfinger Reverse Discovery</h1>
+					<h3>Building a Fediverse Presence with Jekyll</h3>
 					<p>Tom Brown</p>
 					<p>@tom@herestomwiththeweather.com</p>
 					<p style="font-size: 0.8em;">Slides at <a href="https://otisburgsocial.github.io">https://otisburgsocial.github.io</a></p>
@@ -32,6 +32,22 @@
 						<small>— Darius Kazemi, on the fediverse</small>
 					</blockquote>
 					<img src="fediverse.svg" style="max-height: 50vh; width: auto;" />
+				</section>
+				<section>
+					<h2>Contingency Planning</h2>
+					<p>How do people find you if your server suddenly disappears?</p>
+				</section>
+				<section>
+					<h2>Goal 1 of 3</h2>
+					<p>Given a blog at example.com, we want to be known as bob@example.com.</p>
+				</section>
+				<section>
+					<h2>Goal 2 of 3</h2>
+					<p>Fediverse posts available on blog.</p>
+				</section>
+				<section>
+					<h2>Goal 3 of 3</h2>
+					<p>"Remote" Follow support: FEP-3b86 (Activity Intents)</p>
 				</section>
 				<section>
 					<h2>WebFinger</h2>
@@ -150,7 +166,7 @@
 				</section>
 				<section>
 					<p><a href="https://github.com/herestomwiththeweather/irwin/blob/main/app/serializers/webfinger_serializer.rb">webfinger_serializer.rb</a></p>
-					<pre><code class="language-ruby" style="font-size: 0.55em; max-height: 80vh; line-height: 1.4;">class WebfingerSerializer &lt; ActiveModel::Serializer
+					<pre><code class="language-ruby" style="font-size: 0.75em; max-height: 80vh; line-height: 1.4;">class WebfingerSerializer &lt; ActiveModel::Serializer
   attributes :subject, :links
 
   def subject
@@ -169,10 +185,57 @@
 end</code></pre>
 				</section>
 				<section>
-					<img src="cj.png" style="max-height: 80vh; width: auto;" />
+					<h3>Fediverse Posts available on Jekyll</h3>
+					jekyll-indieweb commit: <a href="https://github.com/herestomwiththeweather/herestomwiththeweather.github.io/commit/e25ef935a4df491ed312822b4852d9fc844aa65d">fediverse posts page</a>
+					<br><br>
+					<p style="text-align: left;"><a href="https://github.com/herestomwiththeweather/herestomwiththeweather.github.io/blob/master/_config.yml#L35">_config.yml</a>:</p>
+					<p>fediverse_rss: <a href="https://otisburg.social/actor/tom@herestomwiththeweather.com.xml">https://otisburg.social/actor/tom@herestomwiththeweather.com.xml</a></p>
 				</section>
 				<section>
-					<h1>Webfinger Reverse Discovery</h1>
+					<h3>"Remote" Follow support: FEP-3b86 (Activity Intents)</h3>
+					<ul>
+						<li>I follow Alice (away from my home server)</li>
+						<li>Alice clicks "Follow" on my Jekyll blog</li>
+					</ul>
+				</section>
+				<section>
+					<h3>I follow Alice (away from my home server)</h3>
+					jekyll-indieweb commit: <a href="https://github.com/herestomwiththeweather/herestomwiththeweather.github.io/commit/d11d2354bea1782a2df16f2a0c5d3118ffa454d2">add intents to webfinger</a>
+					<pre><code style="font-size: 0.75em; max-height: 80vh; line-height: 1.4;" data-line-numbers="7-8">
+{
+  "subject": "acct:tom@herestomwiththeweather.com",
+  "links": [
+  {"rel": "http://webfinger.net/rel/profile-page", "type": "text/html", "href": "https://herestomwiththeweather.com"},
+   {"rel": "self", "type": "application/activity+json", "href": "https://otisburg.social/actor/tom@herestomwiththeweather.com"},
+   {"rel": "https://w3id.org/fep/3b86/Follow",
+    "template": "https://otisburg.social/authorize_interaction?uri={object}"},
+   {"rel": "https://w3id.org/fep/3b86/Like",
+    "template": "https://otisburg.social/intents/like?objectId={object}"}
+  ]
+}
+					</pre></code>
+				</section>
+				<section>
+					<h3>Alice Follows me on my Jekyll blog</h3>
+					jekyll-indieweb commit: <a href="https://github.com/herestomwiththeweather/herestomwiththeweather.github.io/commit/b50909b7a38680e7372646cf6cc9ebc620a2fea9">follow on the fediverse button (fep-3b86)</a>
+					<pre><code class="language-javascript" style="font-size: 0.6em; max-height: 80vh; line-height: 1.4;" data-line-numbers="3,8">
+    var resource = 'acct:' + user + '@' + host;
+    var url = 'https://' + host + '/.well-known/webfinger?resource=' + encodeURIComponent(resource);
+    try {
+      var resp = await fetch(url, { headers: { 'Accept': 'application/jrd+json, application/json' } });
+      if (!resp.ok) { showError('Server returned ' + resp.status); return; }
+      var data = await resp.json();
+      var rels = ['https://w3id.org/fep/3b86/Follow', 'https://w3id.org/fep/3b86/Object'];
+      var link = (data.links || []).find(function(l) { return rels.includes(l.rel); });
+      if (!link || !link.template) {
+        showError('Your server does not support remote follows (FEP-3b86).');
+        return;
+      }
+      window.location.href = link.template.replace('{object}', encodeURIComponent(actor));
+					</pre></code>
+				</section>
+				<section>
+					<h3>Building a Fediverse Presence with Jekyll</h3>
 					<p>Tom Brown</p>
 					<p>@tom@herestomwiththeweather.com</p>
 					<p style="font-size: 0.8em;">Slides at <a href="https://otisburgsocial.github.io">https://otisburgsocial.github.io</a></p>
